@@ -1,0 +1,6 @@
+server:
+    contextPath: /
+server.port: 9000
+management.port: 9001
+management.address: 127.0.0.1
+dictionaryFile: dictionary.txt
