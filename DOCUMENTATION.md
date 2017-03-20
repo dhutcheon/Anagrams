@@ -3,9 +3,11 @@ Anagrams Documentation - Ibotta Dev Project
 
 This is a Java web API built using the Spring framework that allows fast searching and manipulation of an anagrams data store (dictionary).  
 
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+
 
 ## Prerequisites/Caveats
 
@@ -14,6 +16,7 @@ The Anagrams project was created using IntelliJ 2017.1 Public Preview for Mac. S
 All Java dependencies are managed via a maven pom file and should be downloaded automatically.
 
 The Anagrams Project has not been tested in Eclipse or other IDEs. I suspect it should import fine but this documentation is written based off of running the project in IntelliJ 
+
 
 ## Installing
 
@@ -69,6 +72,7 @@ A couple of edge cases that I ran into had to do with case sensitivity and speci
 * [Spring Boot](https://projects.spring.io/spring-boot/)
 * [PowerMock](http://powermock.github.io/)
 * [YamlBeans](https://github.com/EsotericSoftware/yamlbeans)
+
 
 ## Author
 
