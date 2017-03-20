@@ -1,122 +1,81 @@
-Ibotta Dev Project
+Anagrams Documentation - Ibotta Dev Project
 =========
 
-
-# The Project
-
----
-
-The project is to build an API that allows fast searches for [anagrams](https://en.wikipedia.org/wiki/Anagram). `dictionary.txt` is a text file containing every word in the English dictionary. Ingesting the file doesn’t need to be fast, and you can store as much data in memory as you like.
-
-The API you design should respond on the following endpoints as specified.
-
-- `POST /words.json`: Takes a JSON array of English-language words and adds them to the dictionary (data store).
-- `GET /anagrams/:word.json`:
-  - Returns a JSON array of English-language words that are anagrams of the word passed in the URL.
-  - This endpoint should support an optional query param that indicates the maximum number of results to return.
-- `DELETE /words/:word.json`: Deletes a single word from the data store.
-- `DELETE /words.json`: Deletes all contents of the data store.
+This is a Java web API built using the Spring framework that allows fast searching and manipulation of an anagrams data store (dictionary).  
 
 
-**Optional**
-- Endpoint that returns a count of words in the dictionary and min/max/median/average word length
-- Respect a query param for whether or not to include proper nouns in the list of anagrams
-- Endpoint that identifies words with the most anagrams
-- Endpoint that takes a set of words and returns whether or not they are all anagrams of each other
-- Endpoint to return all anagram groups of size >= *x*
-- Endpoint to delete a word *and all of its anagrams*
+## Getting Started
 
-Clients will interact with the API over HTTP, and all data sent and received is expected to be in JSON format
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-Example (assuming the API is being served on localhost port 3000):
 
+## Prerequisites/Caveats
+
+The Anagrams project was created using IntelliJ 2017.1 Public Preview for Mac. Since this was a beta version of IntelliJ there were some bugs discovered in the IDE. Hopefully this should not affect users of other versions of IntelliJ.
+
+All Java dependencies are managed via a maven pom file and should be downloaded automatically.
+
+The Anagrams Project has not been tested in Eclipse or other IDEs. I suspect it should import fine but this documentation is written based off of running the project in IntelliJ 
+
+
+## Installing
+
+1. Download the Anagrams project from GitHub: https://github.com/dhutcheon/Anagrams
+2. Import the project into your IDE of choice
+3. Open a terminal window and cd to the project directory root
+4. To compile the project type:
 ```{bash}
-# Adding words to the dictionary
-$ curl -i -X POST -d '{ "words": ["read", "dear", "dare"] }' http://localhost:3000/words.json
-HTTP/1.1 201 Created
-...
-
-# Fetching anagrams
-$ curl -i http://localhost:3000/anagrams/read.json
-HTTP/1.1 200 OK
-...
-{
-  anagrams: [
-    "dear",
-    "dare"
-  ]
-}
-
-# Specifying maximum number of anagrams
-$ curl -i http://localhost:3000/anagrams/read.json?limit=1
-HTTP/1.1 200 OK
-...
-{
-  anagrams: [
-    "dare"
-  ]
-}
-
-# Delete single word
-$ curl -i -X DELETE http://localhost:3000/words/read.json
-HTTP/1.1 200 OK
-...
-
-# Delete all words
-$ curl -i -X DELETE http://localhost:3000/words.json
-HTTP/1.1 204 No Content
-...
+$ mvn clean install
 ```
-
-Note that a word is not considered to be its own anagram.
-
-
-## Tests
-
-We have provided a suite of tests to help as you develop the API. To run the tests you must have Ruby installed ([docs](https://www.ruby-lang.org/en/documentation/installation/)):
-
+5. To run the project type:
 ```{bash}
-ruby anagram_test.rb
+$ mvn spring-boot:run
 ```
-
-Only the first test will be executed, all the others have been made pending using the `pend` method. Delete or comment out the next `pend` as you get each test passing.
-
-If you are running your server somewhere other than localhost port 3000, you can configure the test runner with configuration options described by
-
+6. The Anagrams API will run on port 9000, to verify it is listening type:
 ```{bash}
-ruby anagram_test.rb -h
+$ curl -i http://localhost:9000/anagrams/read.json
 ```
 
-You are welcome to add additional test cases if that helps with your development process. The [benchmark-bigo](https://github.com/davy/benchmark-bigo) gem is helpful if you wish to do performance testing on your implementation.
+## Running the tests
 
-## API Client
+There are several methods for testing the API:
 
-We have provided an API client in `anagram_client.rb`. This is used in the test suite, and can also be used in development.
-
-To run the client in the Ruby console, use `irb`:
-
-```{ruby}
-$ irb
-> require_relative 'anagram_client'
-> client = AnagramClient.new
-> client.post('/words.json', nil, { 'words' => ['read', 'dear', 'dare']})
-> client.get('/anagrams/read.json')
-```
-
-## Documentation
-
-Optionally, you can provide documentation that is useful to consumers and/or maintainers of the API.
-
-Suggestions for documentation topics include:
-
-- Features you think would be useful to add to the API
-- Implementation details (which data store you used, etc.)
-- Limits on the length of words that can be stored or limits on the number of results that will be returned
-- Any edge cases you find while working on the project
-- Design overview and trade-offs you considered
+1. A suite of JUnit tests have been provided in src/main/test/java. No special test config should be necessary, right-click the test class in your IDE and click run. Integration tests are also included as part of the test suite, the integration tests will spin up a local version of the API on a random port and call each of the API methods in the Endpoint class.
+2. Ruby tests (included in src/test/ruby) can be run when the API is started from the command line
+3. curl, just remember to hit port 9000
+4. [Postman](https://www.getpostman.com/), the best API testing tool ever  
 
 
-# Deliverable
----
+## Additional Commentary/Retrospective
 
-Please provide the code for the assignment either in a private repository (GitHub or Bitbucket) or as a zip file. If you have a deliverable that is deployed on the web please provide a link, otherwise give us instructions for running it locally.
+### Data Store
+I used an in memory thread safe hash map to store the data (ConcurrentHashMap) where the key for the map is the anagram with each character in the anagram sorted in alphabetical order. The value for each key in the map is the list of anagrams. Thread safety is an important consideration as multiple read and writer operations could happen on the dictionary simultaneously through the API. Obviously some form of data persistence rather than an in memory data store would be an important consideration if this were a real world application. Also if the dictionary were to hold millions of words rather than a few thousand, "flattening" the data could be another consideration.       
+
+### Spring Boot
+I chose Spring Boot for this project as I believe this provides the best method for running the Anagrams API as a standalone application. I also believe this is the easiest way to get the application working "out of the box" with the least amount of hassle for API developers and testers. 
+While the TestRestTemplate class can sometimes be temperamental, I have found it incredibly useful for creating integration tests and properly being able to test and debug endpoint methods.  
+
+### Error Handling
+Proper exception checking and error handling is probably a necessary feature to add to this API. Sending the client a descriptive error message in JSON format rather than a 500 http response code is helpful for those developing against the API and any client applications. As of right now the API mainly handles "happy path" types of transactions. Invalid data or a bad call to the endpoint will emit a 500 response without much detail as to the nature of the error.
+
+### YamlBeans
+I added support for YAML configuration files when starting the development on Anagrams as it is part of the template I use for creating new API projects. Given that there is only one real configuration field (dictionaryFile), it's safe to say this added some unnecessary complexity for such a small project.
+
+### Edge Cases
+A couple of edge cases that I ran into had to do with case sensitivity and special characters. 
+ - To hash the key for each anagram list in the dictionary I converted the key to lower case and made searching the anagrams dictionary case-insensitive. All words in the anagrams dictionary are also lower case. This made it difficult to handle proper-nouns (if we can assume that all proper nouns have at least one capital as their first letter). This made it harder to support the optional requirement for excluding proper nouns without some refactoring.
+ - I limited the use of special (non-alpha) characters to hyphens only as that is the only punctuation mark that I found in the dictionary file. This got me wondering about what additional special characters (apostrophes for instance) needed to be supported. Additionally, if the anagram API supported multiple languages it might need to include other characters (ñ, umlaut?).    
+
+
+## Built With
+
+* [Spring Boot](https://projects.spring.io/spring-boot/)
+* [PowerMock](http://powermock.github.io/)
+* [YamlBeans](https://github.com/EsotericSoftware/yamlbeans)
+
+
+## Author
+
+[David Hutcheon](https://github.com/dhutcheon/)
+
+
